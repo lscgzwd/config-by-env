@@ -1,15 +1,16 @@
 package env
 
 import (
-	"testing"
-	"os"
-	"time"
 	"github.com/stretchr/testify/assert"
+	"os"
+	"testing"
+	"time"
 )
+
 type config struct {
 	App     string
 	Port    int      `default:"8000"`
-	IsDebug  bool     `env:"DEBUG"`
+	IsDebug bool     `env:"DEBUG"`
 	Hosts   []string `slice_sep:","`
 	Timeout time.Duration
 
@@ -25,6 +26,7 @@ type config struct {
 		Port    int
 	}
 }
+
 func TestGeneralEnv(t *testing.T) {
 	os.Setenv("CONFIG_APP", "ENV APP")
 	// os.Setenv("CONFIG_PORT", "default") // default value
@@ -62,8 +64,6 @@ func TestGeneralEnv(t *testing.T) {
 
 }
 
-
-
 func TestNoPrefixEnv(t *testing.T) {
 	os.Setenv("APP", "ENV_APP")
 	// os.Setenv("PORT", "default") // default value
@@ -81,7 +81,7 @@ func TestNoPrefixEnv(t *testing.T) {
 	defer os.Clearenv()
 
 	cfg := new(config)
-	IgnorePrefix()
+	SetPrefix("")
 	err := Fill(cfg)
 	if err != nil {
 		t.Error(err)

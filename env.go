@@ -1,11 +1,11 @@
 package env
 
 import (
-	"reflect"
-	"strings"
-	"strconv"
-	"os"
 	"fmt"
+	"os"
+	"reflect"
+	"strconv"
+	"strings"
 	"time"
 )
 
@@ -13,35 +13,41 @@ var (
 	defaultSep = "_"
 )
 var env *Env
+
 type Env struct {
+	prefix       string
 	ignorePrefix bool
 }
 
 func init() {
-	env = &Env{false}
+	env = &Env{prefix: "", ignorePrefix: false}
 }
 
 func upper(v string) string {
 	return strings.ToUpper(v)
 }
-
+func SetPrefix(prefix string) {
+	env.ignorePrefix = true
+	env.prefix = upper(prefix)
+}
 func IgnorePrefix() {
 	env.ignorePrefix = true
+	env.prefix = ""
 }
 
 func Fill(v interface{}) error {
 	return env.Fill(v)
 }
 
-func (e *Env)Fill(v interface{}) error {
+func (e *Env) Fill(v interface{}) error {
 	ind := reflect.Indirect(reflect.ValueOf(v))
-	if reflect.ValueOf(v).Kind() != reflect.Ptr || ind.Kind() != reflect.Struct{
+	if reflect.ValueOf(v).Kind() != reflect.Ptr || ind.Kind() != reflect.Struct {
 		return fmt.Errorf("only the pointer to a struct is supported")
 	}
 
 	prefix := upper(ind.Type().Name())
 	if e.ignorePrefix {
-		prefix = ""
+		prefix = e.prefix
 	}
 	err := fill(prefix, ind)
 	if err != nil {
@@ -108,7 +114,7 @@ func parse(prefix string, f reflect.Value, sf reflect.StructField) error {
 	if !exist && df != "" {
 		ev = df
 	}
-	//log.Print("ev:", ev)
+
 	switch f.Kind() {
 	case reflect.String:
 		f.SetString(ev)
@@ -168,13 +174,16 @@ func parse(prefix string, f reflect.Value, sf reflect.StructField) error {
 		if exist && s != "" {
 			sep = s
 		}
-		vals := strings.Split(ev, sep)
+		if ev == "" {
+			return nil
+		}
+		values := strings.Split(ev, sep)
 		switch f.Type() {
 		case reflect.TypeOf([]string{}):
-			f.Set(reflect.ValueOf(vals))
+			f.Set(reflect.ValueOf(values))
 		case reflect.TypeOf([]int{}):
-			t := make([]int, len(vals))
-			for i, v := range vals {
+			t := make([]int, len(values))
+			for i, v := range values {
 				val, err := strconv.ParseInt(v, 10, 32)
 				if err != nil {
 					return fmt.Errorf("%s:%s", prefix, err)
@@ -182,8 +191,8 @@ func parse(prefix string, f reflect.Value, sf reflect.StructField) error {
 				t[i] = int(val)
 			}
 		case reflect.TypeOf([]int64{}):
-			t := make([]int64, len(vals))
-			for i, v := range vals {
+			t := make([]int64, len(values))
+			for i, v := range values {
 				val, err := strconv.ParseInt(v, 10, 64)
 				if err != nil {
 					return fmt.Errorf("%s:%s", prefix, err)
@@ -191,8 +200,8 @@ func parse(prefix string, f reflect.Value, sf reflect.StructField) error {
 				t[i] = val
 			}
 		case reflect.TypeOf([]uint{}):
-			t := make([]uint, len(vals))
-			for i, v := range vals {
+			t := make([]uint, len(values))
+			for i, v := range values {
 				val, err := strconv.ParseUint(v, 10, 32)
 				if err != nil {
 					return fmt.Errorf("%s:%s", prefix, err)
@@ -200,8 +209,8 @@ func parse(prefix string, f reflect.Value, sf reflect.StructField) error {
 				t[i] = uint(val)
 			}
 		case reflect.TypeOf([]uint64{}):
-			t := make([]uint64, len(vals))
-			for i, v := range vals {
+			t := make([]uint64, len(values))
+			for i, v := range values {
 				val, err := strconv.ParseUint(v, 10, 64)
 				if err != nil {
 					return fmt.Errorf("%s:%s", prefix, err)
@@ -209,8 +218,8 @@ func parse(prefix string, f reflect.Value, sf reflect.StructField) error {
 				t[i] = val
 			}
 		case reflect.TypeOf([]float32{}):
-			t := make([]float32, len(vals))
-			for i, v := range vals {
+			t := make([]float32, len(values))
+			for i, v := range values {
 				val, err := strconv.ParseFloat(v, 32)
 				if err != nil {
 					return fmt.Errorf("%s:%s", prefix, err)
@@ -218,8 +227,8 @@ func parse(prefix string, f reflect.Value, sf reflect.StructField) error {
 				t[i] = float32(val)
 			}
 		case reflect.TypeOf([]float64{}):
-			t := make([]float64, len(vals))
-			for i, v := range vals {
+			t := make([]float64, len(values))
+			for i, v := range values {
 				val, err := strconv.ParseFloat(v, 64)
 				if err != nil {
 					return fmt.Errorf("%s:%s", prefix, err)
@@ -227,8 +236,8 @@ func parse(prefix string, f reflect.Value, sf reflect.StructField) error {
 				t[i] = val
 			}
 		case reflect.TypeOf([]bool{}):
-			t := make([]bool, len(vals))
-			for i, v := range vals {
+			t := make([]bool, len(values))
+			for i, v := range values {
 				val, err := parseBool(v)
 				if err != nil {
 					return fmt.Errorf("%s:%s", prefix, err)
