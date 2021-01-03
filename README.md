@@ -1,6 +1,10 @@
-# env
-This lib is used for dealing with environment variables in Golang .
+# config-by-env
+This lib been used for dealing with environment variables in Golang .
 
+Thanks: https://github.com/timest/env
+
+# Example with default prefix
+## ENV Example
 ```
 CONFIG_APP=ENVAPP
 CONFIG_DEBUG=1
@@ -15,7 +19,7 @@ CONFIG_MYSQL_HOST=mysqldb
 CONFIG_MYSQL_PORT=3306
 ```
 
-
+## Code
 ```golang
 
 import (
@@ -79,8 +83,34 @@ func main() {
 ```
 
 
-## or
+# Custom Prefix
+## ENV Example
+```
+CUSTOM_APP=ENVAPP
+CUSTOM_DEBUG=1
+CUSTOM_HOSTS=192.168.0.1,127.0.0.1
+CUSTOM_TIMEOUT=5s
 
+CUSTOM_REDISVERSION=3.2
+CUSTOM_REDIS_HOST=rdb
+CUSTOM_REDIS_PORT=6379
+
+CUSTOM_MYSQL_HOST=mysqldb
+CUSTOM_MYSQL_PORT=3306
+```
+
+## Code
+```golang
+func main() {
+    cfg := new(config)
+    env.SetPrefix("CUSTOM")
+    err := env.Fill(cfg)
+    ...
+}
+```
+
+# No Prefix
+## ENV Example
 ```
 APP=ENVAPP
 DEBUG=1
@@ -95,17 +125,17 @@ MYSQL_HOST=mysqldb
 MYSQL_PORT=3306
 ```
 
-
-```
+## Code
+```golang
 func main() {
     cfg := new(config)
-    env.IgnorePrefix()
+    env.SetPrefix("")
     err := env.Fill(cfg)
     ...
 }
 ```
 
-## tag supported
+# tag supported
 * default
 * env
 * require
