@@ -118,6 +118,24 @@ func parse(prefix string, f reflect.Value, sf reflect.StructField) error {
 	switch f.Kind() {
 	case reflect.String:
 		f.SetString(ev)
+	case reflect.Int8:
+		iv, err := strconv.ParseInt(ev, 10, 8)
+		if err != nil {
+			return fmt.Errorf("%s:%s", prefix, err)
+		}
+		f.SetInt(iv)
+	case reflect.Int16:
+		iv, err := strconv.ParseInt(ev, 10, 16)
+		if err != nil {
+			return fmt.Errorf("%s:%s", prefix, err)
+		}
+		f.SetInt(iv)
+	case reflect.Int32:
+		iv, err := strconv.ParseInt(ev, 10, 32)
+		if err != nil {
+			return fmt.Errorf("%s:%s", prefix, err)
+		}
+		f.SetInt(iv)
 	case reflect.Int:
 		iv, err := strconv.ParseInt(ev, 10, 32)
 		if err != nil {
@@ -138,7 +156,25 @@ func parse(prefix string, f reflect.Value, sf reflect.StructField) error {
 			}
 			f.SetInt(iv)
 		}
+	case reflect.Uint8:
+		uiv, err := strconv.ParseUint(ev, 10, 8)
+		if err != nil {
+			return fmt.Errorf("%s:%s", prefix, err)
+		}
+		f.SetUint(uiv)
+	case reflect.Uint16:
+		uiv, err := strconv.ParseUint(ev, 10, 16)
+		if err != nil {
+			return fmt.Errorf("%s:%s", prefix, err)
+		}
+		f.SetUint(uiv)
 	case reflect.Uint:
+		uiv, err := strconv.ParseUint(ev, 10, 32)
+		if err != nil {
+			return fmt.Errorf("%s:%s", prefix, err)
+		}
+		f.SetUint(uiv)
+	case reflect.Uint32:
 		uiv, err := strconv.ParseUint(ev, 10, 32)
 		if err != nil {
 			return fmt.Errorf("%s:%s", prefix, err)
